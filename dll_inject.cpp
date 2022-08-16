@@ -42,7 +42,7 @@ void InjectDLL(DWORD ProcessID, LPCSTR DLL_PATH)
 		printf("Error: cant get procAddr %d\n", GetLastError());
 	}
 
-    // Getting the handle to the injected remote process
+        // Getting the handle to the injected remote process
 	if (!(hProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, ProcessID))) {
 		printf("Error cant open Process! (%d)\n", GetLastError());
 	}
