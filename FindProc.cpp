@@ -1,5 +1,7 @@
 #include "pch.h"
 
+#define MSGET(x) {std::cout << x << std::endl; system("pause"); return 0;}
+
 bool compare(const std::wstring& str, char const* c)
 {
     std::string c_str(c);
@@ -16,6 +18,34 @@ std::wstring to_wstring(const std::string& str)
     std::wstring wstrTo(size_needed, 0);
     MultiByteToWideChar(CP_UTF8, 0, &str[0], (int)str.size(), &wstrTo[0], size_needed);
     return wstrTo;
+}
+
+const WCHAR* to_wchar(const char* p) {
+    const WCHAR* pwcsName;
+    int nChars = MultiByteToWideChar(CP_ACP, 0, p, -1, NULL, 0);
+    pwcsName = new WCHAR[nChars];
+    MultiByteToWideChar(CP_ACP, 0, p, -1, (LPWSTR)pwcsName, nChars);
+    return pwcsName;
+}
+
+DWORD procNameToPID(const char* procName)
+{
+    HANDLE snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+    if (snapshot == INVALID_HANDLE_VALUE)
+        MSGET("Error trying to take snapshots of the system processes");
+
+    PROCESSENTRY32 process;
+    process.dwSize = sizeof(PROCESSENTRY32);
+
+    Process32First(snapshot, &process);
+    do
+    {
+        if (strstr((char*)process.szExeFile, procName))
+            return process.th32ProcessID;
+
+    } while (Process32Next(snapshot, &process));
+
+    return 0;
 }
 
 // find process ID by process name
@@ -56,17 +86,17 @@ int findMyProc(const wchar_t* procname) {
 
 int main(int argc,  char* argv[]) {
 
-    int pid = 0; // process ID
-    char* p = argv[1];
-    const WCHAR* pwcsName;
-    int nChars = MultiByteToWideChar(CP_ACP, 0, p, -1, NULL, 0);
-    pwcsName = new WCHAR[nChars];
-    MultiByteToWideChar(CP_ACP, 0, p, -1, (LPWSTR)pwcsName, nChars);
-    pid = findMyProc(pwcsName);
-    printf("PID = %d\n", pid);
+    //int pid = 0; // process ID
+    //char* p = argv[1];
+    //const WCHAR* pwcsName;
+    //int nChars = MultiByteToWideChar(CP_ACP, 0, p, -1, NULL, 0);
+    //pwcsName = new WCHAR[nChars];
+    //MultiByteToWideChar(CP_ACP, 0, p, -1, (LPWSTR)pwcsName, nChars);
+    //pid = findMyProc(pwcsName);
+
+    int pid = procNameToPID(argv[1]);
     if (pid) {
         printf("PID = %d\n", pid);
-        delete[] pwcsName;
     }
     return 0;
 }
