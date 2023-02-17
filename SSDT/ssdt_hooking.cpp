@@ -1,4 +1,4 @@
-# example driver
+// example driver
 #include <ntddk.h>
 
 typedef NTSTATUS (*pfnNtCreateFile)(
